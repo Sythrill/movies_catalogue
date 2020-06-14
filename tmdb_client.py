@@ -1,6 +1,7 @@
 import requests
+import os
 
-API_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyMzBkYTJjODcxOWFiNDZjNDZhODU3NmQ4YmViMzAxOCIsInN1YiI6IjVlYzU2OTQ0NmM4NDkyMDAyMTI5NWY4ZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.Fk2Dl6c3GsXi9T1Livix6nzdPc0zWGfAi0JeRSukjYA"
+API_TOKEN = os.environ.get("TMDB_API_TOKEN", "")
 
 def get_movies():
     url = "https://api.themoviedb.org/3/movie/popular"
@@ -44,10 +45,23 @@ def get_movie_images(movie_id):
     return response.json()
 
 def get_movies_list(list_type):
-    endpoint = f"https://api.themoviedb.org/3/movie/{list_type}"
+    return call_tmdb_api(f"movie/{list_type}")
+
+def search(search_query):
+    base_url = "https://api.themoviedb.org/3/"
     headers = {
-        "Authorization": f"Bearer {API_TOKEN}"
+       "Authorization": f"Bearer {API_TOKEN}"
     }
+    endpoint = f"{base_url}search/movie/?query={search_query}"
     response = requests.get(endpoint, headers=headers)
+    response = response.json()
+    return response['results']
+
+def call_tmdb_api(endpoint):
+    full_url = f"https://api.themoviedb.org/3/{endpoint}"
+    headers = {
+       "Authorization": f"Bearer {API_TOKEN}"
+   }
+    response = requests.get(full_url, headers=headers)
     response.raise_for_status()
     return response.json()
